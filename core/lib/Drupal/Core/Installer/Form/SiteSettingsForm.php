@@ -65,6 +65,7 @@ class SiteSettingsForm extends FormBase {
     $form['#title'] = $this->t('Database configuration');
 
     $drivers = drupal_get_database_types();
+    unset($drivers['mysql']);
     $drivers_keys = array_keys($drivers);
 
     // Unless there is input for this form (for a non-interactive installation,
@@ -125,6 +126,17 @@ class SiteSettingsForm extends FormBase {
         ]
       ];
     }
+
+    $dbopts = parse_url(getenv('DATABASE_URL'));
+
+    $form['settings']['pgsql']['database']['#default_value'] = ltrim($dbopts["path"],'/');
+    $form['settings']['pgsql']['username']['#default_value'] = $dbopts["user"];
+    $form['settings']['pgsql']['password']['#type'] = "textfield";
+    $form['settings']['pgsql']['password']['#default_value'] = $dbopts["pass"];
+
+    $form['settings']['pgsql']['advanced_options']['host']['#default_value'] = $dbopts["host"];
+    $form['settings']['pgsql']['advanced_options']['port']['#default_value'] = $dbopts["port"];
+    $form['settings']['pgsql']['advanced_options']['prefix']['#default_value'] = "drupal_";
 
     $form['actions'] = ['#type' => 'actions'];
     $form['actions']['save'] = [
